@@ -87,10 +87,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
+          className="mt-20 grid grid-cols-3 gap-6 max-w-2xl mx-auto"
         >
           {[
-            { value: "20+", label: "Years Experience" },
             { value: "500+", label: "Cases Handled" },
             { value: "98%", label: "Client Satisfaction" },
             { value: "4", label: "Expert Team Members" },

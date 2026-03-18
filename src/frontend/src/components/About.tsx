@@ -2,7 +2,6 @@ import { CheckCircle } from "lucide-react";
 import { motion } from "motion/react";
 
 const highlights = [
-  "Over two decades of collective legal expertise",
   "Dedicated to precision and ethical practice",
   "Trusted by individuals, corporations, and institutions",
   "Full-spectrum paralegal support across practice areas",
@@ -101,19 +100,6 @@ export default function About() {
               <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-gold/50" />
               <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-gold/50" />
               <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-gold/50" />
-            </div>
-
-            {/* Floating badge */}
-            <div
-              className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full flex flex-col items-center justify-center text-center shadow-gold"
-              style={{ background: "oklch(0.72 0.1 76)" }}
-            >
-              <span className="text-navy font-black text-xl leading-none">
-                20+
-              </span>
-              <span className="text-navy text-xs font-semibold uppercase leading-tight">
-                Years of Expertise
-              </span>
             </div>
           </motion.div>
         </div>

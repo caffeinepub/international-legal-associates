@@ -40,24 +40,12 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <a
-            href="#home"
-            className="flex items-center gap-3 group"
-            data-ocid="nav.link"
-          >
-            <div className="flex-shrink-0 w-10 h-10 bg-navy rounded flex items-center justify-center">
-              <span className="text-gold font-bold text-sm tracking-widest">
-                ILA
-              </span>
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-navy font-bold text-sm uppercase tracking-widest leading-tight">
-                International Legal
-              </p>
-              <p className="text-gold text-xs uppercase tracking-widest leading-tight">
-                Associates
-              </p>
-            </div>
+          <a href="#home" className="flex items-center" data-ocid="nav.link">
+            <img
+              src="/assets/uploads/1773509826273-1.png"
+              alt="International Legal Associates Logo"
+              className="h-14 lg:h-16 w-auto object-contain"
+            />
           </a>
 
           {/* Desktop Nav */}
