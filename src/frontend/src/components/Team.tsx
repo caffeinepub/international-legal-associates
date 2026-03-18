@@ -18,23 +18,11 @@ const leaders = [
   },
 ];
 
-const team = [
-  {
-    name: "Ankita Joshi",
-    role: "Criminal Law Academic Scholar",
-    bio: "PhD in Criminal Law. Academic scholar bridging theoretical frameworks with practical legal application for robust case strategy.",
-    img: "/assets/generated/team-ankita.dim_300x300.jpg",
-    initials: "AJ",
-  },
-];
-
 function TeamCard({
   member,
-  large = false,
   index,
 }: {
   member: (typeof leaders)[0];
-  large?: boolean;
   index: number;
 }) {
   return (
@@ -46,10 +34,7 @@ function TeamCard({
       className="bg-white border border-border hover:border-gold hover:shadow-gold rounded-sm overflow-hidden group transition-all duration-300"
       data-ocid={`team.item.${index + 1}`}
     >
-      <div
-        className="relative overflow-hidden"
-        style={{ height: large ? "280px" : "220px" }}
-      >
+      <div className="relative overflow-hidden" style={{ height: "280px" }}>
         <div
           className="absolute inset-0"
           style={{ background: "oklch(0.22 0.055 243)" }}
@@ -67,7 +52,6 @@ function TeamCard({
             {member.initials}
           </AvatarFallback>
         </Avatar>
-        {/* Gold overlay on hover */}
         <div className="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
@@ -106,24 +90,14 @@ export default function Team() {
             <div className="h-px w-8 bg-gold" />
           </div>
           <h2 className="text-3xl sm:text-4xl font-black uppercase text-navy tracking-tight">
-            Our Leadership &amp; Team
+            Our Leadership
           </h2>
         </motion.div>
 
-        {/* Leadership row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {leaders.map((m, i) => (
-            <TeamCard key={m.name} member={m} large index={i} />
+            <TeamCard key={m.name} member={m} index={i} />
           ))}
-        </div>
-
-        {/* Team row */}
-        <div className="flex justify-center">
-          <div className="max-w-sm w-full">
-            {team.map((m, i) => (
-              <TeamCard key={m.name} member={m} index={i + 2} />
-            ))}
-          </div>
         </div>
       </div>
     </section>
