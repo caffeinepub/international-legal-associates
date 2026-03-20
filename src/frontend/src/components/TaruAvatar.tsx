@@ -53,7 +53,7 @@ export default function TaruAvatar({ state, size = "md" }: Props) {
         }}
       />
       <img
-        src="/assets/uploads/images-5--1.jpeg"
+        src="/assets/generated/taru-ai-avatar-transparent.dim_400x400.png"
         alt="Taru"
         className={`w-full h-full rounded-full object-cover ring-4 ${ringColor} shadow-2xl`}
       />

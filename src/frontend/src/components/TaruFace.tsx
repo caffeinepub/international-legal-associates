@@ -107,9 +107,9 @@ export function TaruFace({
         />
       )}
 
-      {/* Photo avatar */}
+      {/* AI-generated avatar */}
       <img
-        src="/assets/generated/taru-avatar-transparent.dim_400x400.png"
+        src="/assets/generated/taru-ai-avatar-transparent.dim_400x400.png"
         alt="Taru"
         style={{
           width: innerSize,
