@@ -1,69 +1,128 @@
 import Map "mo:core/Map";
-import Text "mo:core/Text";
+import Nat "mo:core/Nat";
 import Array "mo:core/Array";
-import Order "mo:core/Order";
-import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
+
+import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
+
 
 actor {
-  // Data type for an inquiry
-  type Inquiry = {
-    id : Nat;
+  type Message = {
+    content : Text;
+    timestamp : Int;
+  };
+
+  public type UserProfile = {
     name : Text;
-    email : Text;
-    phone : Text;
-    message : Text;
   };
 
-  // Inquiry module for comparison (by name)
-  module Inquiry {
-    public func compareByName(inquiry1 : Inquiry, inquiry2 : Inquiry) : Order.Order {
-      Text.compare(inquiry1.name, inquiry2.name);
+  // Initialize the access control system
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
+  var nextId = 0;
+  let messages = Map.empty<Nat, Message>();
+  let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // User Profile Management Functions
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
+    userProfiles.get(caller);
   };
 
-  var nextInquiryId = 0;
-  let inquiries = Map.empty<Nat, Inquiry>();
-  var isAdmin = true;
-
-  // Submit a new inquiry
-  public shared ({ caller }) func submitInquiry(name : Text, email : Text, phone : Text, message : Text) : async Nat {
-    let id = nextInquiryId;
-    let inquiry : Inquiry = { id; name; email; phone; message };
-    inquiries.add(id, inquiry);
-    nextInquiryId += 1;
-    id;
-  };
-
-  // Get all inquiries (admin only)
-  public query ({ caller }) func getAllInquiries() : async [Inquiry] {
-    if (not isAdmin) { Runtime.trap("Only admins can view inquiries.") };
-    inquiries.values().toArray();
-  };
-
-  // Get all inquiries sorted by name (admin only)
-  public query ({ caller }) func getAllInquiriesSortedByName() : async [Inquiry] {
-    if (not isAdmin) { Runtime.trap("Only admins can view inquiries.") };
-    inquiries.values().toArray().sort(Inquiry.compareByName);
-  };
-
-  // Clear all inquiries (admin only)
-  public shared ({ caller }) func clearAllInquiries() : async () {
-    if (not isAdmin) { Runtime.trap("Only admins can clear inquiries.") };
-    inquiries.clear();
-  };
-
-  // Get a specific inquiry by id (admin only)
-  public query ({ caller }) func getInquiryById(id : Nat) : async Inquiry {
-    if (not isAdmin) { Runtime.trap("Only admins can view inquiries.") };
-    switch (inquiries.get(id)) {
-      case (null) { Runtime.trap("Inquiry does not exist") };
-      case (?inquiry) { inquiry };
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
     };
+    userProfiles.get(user);
   };
 
-  // Get the number of inquiries
-  public query ({ caller }) func getInquiryCount() : async Nat {
-    inquiries.size();
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  // Chat Message Functions
+  public shared ({ caller }) func sendMessage(message : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can send messages");
+    };
+
+    messages.add(
+      nextId,
+      {
+        content = message;
+        timestamp = Time.now();
+      },
+    );
+    nextId += 1;
+  };
+
+  public query ({ caller }) func getMessages(count : Nat) : async [Message] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view messages");
+    };
+
+    let messagesArray = messages.values().toArray();
+    let totalMessages = messagesArray.size();
+
+    if (totalMessages == 0) {
+      return [];
+    };
+
+    let startIndex = if (totalMessages > count) {
+      totalMessages - count;
+    } else {
+      0;
+    };
+
+    Array.tabulate<Message>(
+      totalMessages - startIndex,
+      func(i : Nat) : Message {
+        messagesArray[startIndex + i];
+      }
+    );
+  };
+
+  public query ({ caller }) func getMessage(id : Nat) : async ?Message {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view messages");
+    };
+    messages.get(id);
+  };
+
+  public query ({ caller }) func getMessageCount() : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view messages");
+    };
+    messages.size();
+  };
+
+  public shared ({ caller }) func calculateFunctionAccuracy(functionId : Nat) : async Float {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can calculate function accuracy");
+    };
+    if (functionId == 0) {
+      Runtime.trap("A calculation attempt was made for a function without a connected backend. This might indicate a bug in the code. If you think this is an error, please try again or contact support.");
+    };
+    1.0;
+  };
+
+  // Public utility functions (no auth required)
+  public query ({ caller }) func helloWorld() : async Text {
+    "Hello world";
+  };
+
+  public query ({ caller }) func add(x : Int, y : Int) : async Int {
+    x + y;
   };
 };
+

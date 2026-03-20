@@ -7,18 +7,30 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Inquiry {
-    id: bigint;
+export interface Message {
+    content: string;
+    timestamp: bigint;
+}
+export interface UserProfile {
     name: string;
-    email: string;
-    message: string;
-    phone: string;
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
 }
 export interface backendInterface {
-    clearAllInquiries(): Promise<void>;
-    getAllInquiries(): Promise<Array<Inquiry>>;
-    getAllInquiriesSortedByName(): Promise<Array<Inquiry>>;
-    getInquiryById(id: bigint): Promise<Inquiry>;
-    getInquiryCount(): Promise<bigint>;
-    submitInquiry(name: string, email: string, phone: string, message: string): Promise<bigint>;
+    add(x: bigint, y: bigint): Promise<bigint>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    calculateFunctionAccuracy(functionId: bigint): Promise<number>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getMessage(id: bigint): Promise<Message | null>;
+    getMessageCount(): Promise<bigint>;
+    getMessages(count: bigint): Promise<Array<Message>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    helloWorld(): Promise<string>;
+    isCallerAdmin(): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    sendMessage(message: string): Promise<void>;
 }

@@ -8,49 +8,68 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const Inquiry = IDL.Record({
-  'id' : IDL.Nat,
-  'name' : IDL.Text,
-  'email' : IDL.Text,
-  'message' : IDL.Text,
-  'phone' : IDL.Text,
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Message = IDL.Record({
+  'content' : IDL.Text,
+  'timestamp' : IDL.Int,
 });
 
 export const idlService = IDL.Service({
-  'clearAllInquiries' : IDL.Func([], [], []),
-  'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
-  'getAllInquiriesSortedByName' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
-  'getInquiryById' : IDL.Func([IDL.Nat], [Inquiry], ['query']),
-  'getInquiryCount' : IDL.Func([], [IDL.Nat], ['query']),
-  'submitInquiry' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-      [IDL.Nat],
-      [],
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'add' : IDL.Func([IDL.Int, IDL.Int], [IDL.Int], ['query']),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'calculateFunctionAccuracy' : IDL.Func([IDL.Nat], [IDL.Float64], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getMessage' : IDL.Func([IDL.Nat], [IDL.Opt(Message)], ['query']),
+  'getMessageCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'getMessages' : IDL.Func([IDL.Nat], [IDL.Vec(Message)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
     ),
+  'helloWorld' : IDL.Func([], [IDL.Text], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'sendMessage' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const Inquiry = IDL.Record({
-    'id' : IDL.Nat,
-    'name' : IDL.Text,
-    'email' : IDL.Text,
-    'message' : IDL.Text,
-    'phone' : IDL.Text,
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
   });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Message = IDL.Record({ 'content' : IDL.Text, 'timestamp' : IDL.Int });
   
   return IDL.Service({
-    'clearAllInquiries' : IDL.Func([], [], []),
-    'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
-    'getAllInquiriesSortedByName' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
-    'getInquiryById' : IDL.Func([IDL.Nat], [Inquiry], ['query']),
-    'getInquiryCount' : IDL.Func([], [IDL.Nat], ['query']),
-    'submitInquiry' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [IDL.Nat],
-        [],
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'add' : IDL.Func([IDL.Int, IDL.Int], [IDL.Int], ['query']),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'calculateFunctionAccuracy' : IDL.Func([IDL.Nat], [IDL.Float64], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getMessage' : IDL.Func([IDL.Nat], [IDL.Opt(Message)], ['query']),
+    'getMessageCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getMessages' : IDL.Func([IDL.Nat], [IDL.Vec(Message)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
       ),
+    'helloWorld' : IDL.Func([], [IDL.Text], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'sendMessage' : IDL.Func([IDL.Text], [], []),
   });
 };
 

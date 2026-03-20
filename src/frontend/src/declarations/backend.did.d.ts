@@ -10,20 +10,26 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Inquiry {
-  'id' : bigint,
-  'name' : string,
-  'email' : string,
-  'message' : string,
-  'phone' : string,
-}
+export interface Message { 'content' : string, 'timestamp' : bigint }
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
-  'clearAllInquiries' : ActorMethod<[], undefined>,
-  'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
-  'getAllInquiriesSortedByName' : ActorMethod<[], Array<Inquiry>>,
-  'getInquiryById' : ActorMethod<[bigint], Inquiry>,
-  'getInquiryCount' : ActorMethod<[], bigint>,
-  'submitInquiry' : ActorMethod<[string, string, string, string], bigint>,
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'add' : ActorMethod<[bigint, bigint], bigint>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'calculateFunctionAccuracy' : ActorMethod<[bigint], number>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getMessage' : ActorMethod<[bigint], [] | [Message]>,
+  'getMessageCount' : ActorMethod<[], bigint>,
+  'getMessages' : ActorMethod<[bigint], Array<Message>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'helloWorld' : ActorMethod<[], string>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'sendMessage' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
