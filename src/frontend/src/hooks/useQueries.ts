@@ -10,14 +10,22 @@ export function useSubmitInquiry() {
       email,
       phone,
       message,
+      preferredDate,
+      preferredTime,
     }: {
       name: string;
       email: string;
       phone: string;
       message: string;
+      preferredDate: string;
+      preferredTime: string;
     }) => {
       if (!actor) throw new Error("Not connected");
-      return actor.submitInquiry(name, email, phone, message);
+      const fullMessage =
+        preferredDate && preferredTime
+          ? `${message}\n\n[Scheduled: ${preferredDate} at ${preferredTime}]`
+          : message;
+      return actor.submitInquiry(name, email, phone, fullMessage);
     },
   });
 }

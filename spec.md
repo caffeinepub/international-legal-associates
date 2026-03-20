@@ -1,32 +1,27 @@
 # International Legal Associates
 
 ## Current State
-Full website with Hero, Services, About, Team, Contact sections, and Footer. Backend stores inquiries. Team has: Ashutosh Singh (Founder), Taranpreet Kaur (CEO), Gayatri Dogra, Ankita Joshi. Contact info uses placeholder email/phone. LinkedIn links are placeholders. No admin access to view inquiries.
+The website has a Contact/Inquiry form with fields: name, email, phone, message. Submitted inquiries are stored in the backend and viewable in the Admin panel. There is no date/time scheduling feature.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Authorization component for admin login (Internet Identity)
-- Admin dashboard page: view all submitted inquiries when logged in
-- Admin login button in header (discreet)
-- Real LinkedIn profile link for International Legal Associates
+- Date picker field in the consultation form so visitors can choose their preferred meeting date
+- Time slot selector with predefined slots during office hours (e.g., 9 AM, 10 AM ... 5 PM on weekdays, 10 AM–1 PM on Saturdays)
+- Store `preferredDate` and `preferredTime` in the inquiry record
+- Admin panel displays scheduled date/time alongside other inquiry details
 
 ### Modify
-- Ashutosh Singh photo: use uploaded /assets/uploads/1773862404110-1.png
-- Remove Gayatri Dogra from team (not mentioned)
-- Update contact email to ashutoshsingh0101970@gmail.com
-- Update phone to +919596991023
-- Update footer with real contact details and LinkedIn link
+- Contact form: add date + time fields between phone and message
+- Backend `Inquiry` type: add `preferredDate` and `preferredTime` fields
+- `submitInquiry` function: accept two additional Text params for date and time
+- Admin panel: show the scheduled date/time in each inquiry card
 
 ### Remove
-- Gayatri Dogra team card
-- Placeholder social/contact info
+- Nothing removed
 
 ## Implementation Plan
-1. Select authorization component
-2. Update Team.tsx: use real founder photo, remove Gayatri Dogra
-3. Update Contact.tsx: real email + phone
-4. Update Footer.tsx: real email, phone, LinkedIn link
-5. Create Admin.tsx: inquiry dashboard behind auth
-6. Update Header.tsx: admin login link
-7. Update App.tsx: include Admin panel
+1. Update `main.mo` to include `preferredDate` and `preferredTime` in Inquiry type and `submitInquiry` signature
+2. Update `Contact.tsx` to add a date input and time slot dropdown
+3. Update `Admin.tsx` to display scheduled date/time
+4. Update `useQueries` hook to pass new fields

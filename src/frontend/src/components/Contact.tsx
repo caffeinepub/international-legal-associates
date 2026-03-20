@@ -1,12 +1,60 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitInquiry } from "@/hooks/useQueries";
-import { CheckCircle, Loader2, Mail, MapPin, Phone } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+const WEEKDAY_SLOTS = [
+  "9:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "1:00 PM",
+  "2:00 PM",
+  "3:00 PM",
+  "4:00 PM",
+  "5:00 PM",
+];
+
+const SATURDAY_SLOTS = ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM"];
+
+function getTimeSlots(dateStr: string): string[] {
+  if (!dateStr) return WEEKDAY_SLOTS;
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.getDay() === 6 ? SATURDAY_SLOTS : WEEKDAY_SLOTS;
+}
+
+function getTodayString(): string {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function isWeekend(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.getDay() === 0; // Sunday
+}
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -14,26 +62,54 @@ export default function Contact() {
     email: "",
     phone: "",
     message: "",
+    preferredDate: "",
+    preferredTime: "",
   });
+  const [dateError, setDateError] = useState("");
   const { mutateAsync, isPending, isSuccess } = useSubmitInquiry();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isWeekend(form.preferredDate)) {
+      setDateError(
+        "We are not available on Sundays. Please choose another day.",
+      );
+      return;
+    }
+    setDateError("");
     try {
       await mutateAsync(form);
       toast.success(
-        "Your inquiry has been submitted. We will be in touch shortly.",
+        "Your consultation has been scheduled! We will confirm shortly.",
       );
-      setForm({ name: "", email: "", phone: "", message: "" });
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        preferredDate: "",
+        preferredTime: "",
+      });
     } catch {
-      toast.error("Failed to send inquiry. Please try again.");
+      toast.error("Failed to schedule. Please try again.");
     }
   };
 
   const update =
     (field: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
+      if (field === "preferredDate") {
+        setDateError("");
+        setForm((prev) => ({
+          ...prev,
+          [field]: e.target.value,
+          preferredTime: "",
+        }));
+      }
+    };
+
+  const timeSlots = getTimeSlots(form.preferredDate);
 
   return (
     <section id="contact" className="py-24 bg-background">
@@ -48,16 +124,16 @@ export default function Contact() {
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="h-px w-8 bg-gold" />
             <span className="text-gold text-xs font-semibold uppercase tracking-[0.2em]">
-              Get In Touch
+              Schedule a Consultation
             </span>
             <div className="h-px w-8 bg-gold" />
           </div>
           <h2 className="text-3xl sm:text-4xl font-black uppercase text-navy tracking-tight">
-            Contact Us
+            Book Your Consultation
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-            Ready to discuss your legal needs? Reach out to our team for a
-            professional consultation.
+            Choose your preferred date and time. Our team will confirm your
+            appointment within 24 hours.
           </p>
         </motion.div>
 
@@ -123,13 +199,32 @@ export default function Contact() {
               className="p-6 rounded-sm"
               style={{ background: "oklch(0.22 0.055 243)" }}
             >
-              <p className="text-gold text-xs uppercase tracking-widest font-semibold mb-2">
-                Office Hours
+              <p className="text-gold text-xs uppercase tracking-widest font-semibold mb-3">
+                Consultation Hours
               </p>
-              <p className="text-white font-semibold">Monday – Friday</p>
-              <p className="text-white/70 text-sm">9:00 AM – 6:00 PM (IST)</p>
-              <p className="text-white font-semibold mt-2">Saturday</p>
-              <p className="text-white/70 text-sm">10:00 AM – 2:00 PM (IST)</p>
+              <div className="flex items-start gap-3 mb-3">
+                <Calendar className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white font-semibold">Monday – Friday</p>
+                  <p className="text-white/70 text-sm">
+                    9:00 AM – 5:00 PM (IST)
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Calendar className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white font-semibold">Saturday</p>
+                  <p className="text-white/70 text-sm">
+                    10:00 AM – 1:00 PM (IST)
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-white/50 text-xs">
+                  Sundays closed. Appointments confirmed within 24 hours.
+                </p>
+              </div>
             </div>
           </motion.div>
 
@@ -196,6 +291,67 @@ export default function Contact() {
                   className="mt-1.5 rounded-none border-border focus:border-gold focus:ring-gold"
                 />
               </div>
+
+              {/* Scheduling Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label
+                    htmlFor="preferredDate"
+                    className="text-xs uppercase tracking-widest font-semibold text-navy"
+                  >
+                    Preferred Date *
+                  </Label>
+                  <Input
+                    id="preferredDate"
+                    type="date"
+                    data-ocid="contact.input"
+                    value={form.preferredDate}
+                    onChange={update("preferredDate")}
+                    min={getTodayString()}
+                    required
+                    className="mt-1.5 rounded-none border-border focus:border-gold focus:ring-gold"
+                  />
+                  {dateError && (
+                    <p
+                      data-ocid="contact.error_state"
+                      className="text-red-600 text-xs mt-1"
+                    >
+                      {dateError}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label
+                    htmlFor="preferredTime"
+                    className="text-xs uppercase tracking-widest font-semibold text-navy"
+                  >
+                    Preferred Time *
+                  </Label>
+                  <Select
+                    value={form.preferredTime}
+                    onValueChange={(val) =>
+                      setForm((prev) => ({ ...prev, preferredTime: val }))
+                    }
+                    required
+                  >
+                    <SelectTrigger
+                      id="preferredTime"
+                      data-ocid="contact.select"
+                      className="mt-1.5 rounded-none border-border focus:border-gold focus:ring-gold"
+                    >
+                      <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      {timeSlots.map((slot) => (
+                        <SelectItem key={slot} value={slot}>
+                          {slot}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div>
                 <Label
                   htmlFor="message"
@@ -209,7 +365,7 @@ export default function Contact() {
                   value={form.message}
                   onChange={update("message")}
                   required
-                  rows={5}
+                  rows={4}
                   placeholder="Describe your legal needs..."
                   className="mt-1.5 rounded-none border-border focus:border-gold focus:ring-gold resize-none"
                 />
@@ -222,7 +378,7 @@ export default function Contact() {
                 >
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">
-                    Inquiry submitted successfully!
+                    Consultation scheduled! We will confirm shortly.
                   </span>
                 </div>
               )}
@@ -235,10 +391,11 @@ export default function Contact() {
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                    Scheduling...
                   </>
                 ) : (
-                  "Send Inquiry"
+                  "Schedule Consultation"
                 )}
               </Button>
             </form>

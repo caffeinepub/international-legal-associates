@@ -4,6 +4,14 @@ import { useGetAllInquiries } from "@/hooks/useQueries";
 import { LogIn, LogOut, RefreshCw, Shield } from "lucide-react";
 import { motion } from "motion/react";
 
+function parseScheduledInfo(message: string): { date: string; time: string } {
+  const match = message.match(/\[Scheduled: (.+?) at (.+?)\]/);
+  if (match) {
+    return { date: match[1], time: match[2] };
+  }
+  return { date: "", time: "" };
+}
+
 function InquiriesTable() {
   const { data: inquiries, isLoading, error, refetch } = useGetAllInquiries();
   const { clear } = useInternetIdentity();
@@ -91,50 +99,80 @@ function InquiriesTable() {
                 <th className="text-left text-gold text-xs uppercase tracking-widest font-semibold pb-3 pr-4">
                   Phone
                 </th>
+                <th className="text-left text-gold text-xs uppercase tracking-widest font-semibold pb-3 pr-4">
+                  Scheduled Date
+                </th>
+                <th className="text-left text-gold text-xs uppercase tracking-widest font-semibold pb-3 pr-4">
+                  Scheduled Time
+                </th>
                 <th className="text-left text-gold text-xs uppercase tracking-widest font-semibold pb-3">
                   Message
                 </th>
               </tr>
             </thead>
             <tbody>
-              {inquiries.map((inquiry, i) => (
-                <tr
-                  key={String(inquiry.id)}
-                  data-ocid={`admin.row.item.${i + 1}`}
-                  style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
-                  className="hover:bg-white/5 transition-colors"
-                >
-                  <td className="py-3 pr-4 text-white/40 text-xs">{i + 1}</td>
-                  <td className="py-3 pr-4 text-white font-medium whitespace-nowrap">
-                    {inquiry.name}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <a
-                      href={`mailto:${inquiry.email}`}
-                      className="text-gold/80 hover:text-gold transition-colors"
-                    >
-                      {inquiry.email}
-                    </a>
-                  </td>
-                  <td className="py-3 pr-4">
-                    {inquiry.phone ? (
+              {inquiries.map((inquiry, i) => {
+                const scheduled = parseScheduledInfo(inquiry.message);
+                const displayMessage = inquiry.message
+                  .replace(/\n\n\[Scheduled: .+?\]$/, "")
+                  .trim();
+                return (
+                  <tr
+                    key={String(inquiry.id)}
+                    data-ocid={`admin.row.item.${i + 1}`}
+                    style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+                    className="hover:bg-white/5 transition-colors"
+                  >
+                    <td className="py-3 pr-4 text-white/40 text-xs">{i + 1}</td>
+                    <td className="py-3 pr-4 text-white font-medium whitespace-nowrap">
+                      {inquiry.name}
+                    </td>
+                    <td className="py-3 pr-4">
                       <a
-                        href={`tel:${inquiry.phone}`}
-                        className="text-white/60 hover:text-white transition-colors"
+                        href={`mailto:${inquiry.email}`}
+                        className="text-gold/80 hover:text-gold transition-colors"
                       >
-                        {inquiry.phone}
+                        {inquiry.email}
                       </a>
-                    ) : (
-                      <span className="text-white/20">—</span>
-                    )}
-                  </td>
-                  <td className="py-3 text-white/60 max-w-xs">
-                    <p className="line-clamp-2 leading-relaxed">
-                      {inquiry.message}
-                    </p>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {inquiry.phone ? (
+                        <a
+                          href={`tel:${inquiry.phone}`}
+                          className="text-white/60 hover:text-white transition-colors"
+                        >
+                          {inquiry.phone}
+                        </a>
+                      ) : (
+                        <span className="text-white/20">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      {scheduled.date ? (
+                        <span className="text-gold/80 text-xs font-medium">
+                          {scheduled.date}
+                        </span>
+                      ) : (
+                        <span className="text-white/20">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      {scheduled.time ? (
+                        <span className="text-gold/80 text-xs font-medium">
+                          {scheduled.time}
+                        </span>
+                      ) : (
+                        <span className="text-white/20">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 text-white/60 max-w-xs">
+                      <p className="line-clamp-2 leading-relaxed">
+                        {displayMessage}
+                      </p>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -179,7 +217,7 @@ export default function Admin() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="max-w-5xl mx-auto"
+          className="max-w-6xl mx-auto"
         >
           <div
             className="rounded-sm p-8"
